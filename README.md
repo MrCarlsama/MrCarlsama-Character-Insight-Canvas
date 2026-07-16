@@ -21,25 +21,19 @@
 
 报告开头集中说明角色身份、行为习惯、主要矛盾、关键关系和视觉特征。需要核对某项判断时，可以直接进入对应出处。
 
-<a href="./docs/assets/character-overview.png">
-  <img src="./docs/assets/character-overview.png" alt="霍尔海雅角色速览完整界面" width="100%">
-</a>
+[![霍尔海雅角色速览完整界面](docs/assets/character-overview.png)](docs/assets/character-overview.png)
 
 ### 核心路径
 
 人物变化按先后顺序整理成一条主线。这里只保留影响角色选择和目标的关键节点，相关人物、事件和机制留在证据地图中展开。
 
-<a href="./docs/assets/core-path.png">
-  <img src="./docs/assets/core-path.png" alt="霍尔海雅核心路径完整界面" width="100%">
-</a>
+[![霍尔海雅核心路径完整界面](docs/assets/core-path.png)](docs/assets/core-path.png)
 
 ### 证据抽屉
 
 从路径或地图节点继续深入时，新抽屉会覆盖上一层，同时留下带标题的窄边。最深一层列出来源、定位、说话人、原文节选、语境，以及这段材料能够支持到什么程度。
 
-<a href="./docs/assets/evidence-drawer.png">
-  <img src="./docs/assets/evidence-drawer.png" alt="霍尔海雅证据抽屉完整界面" width="100%">
-</a>
+[![霍尔海雅证据抽屉完整界面](docs/assets/evidence-drawer.png)](docs/assets/evidence-drawer.png)
 
 示例数据和配套渲染器不随本仓库发布。截图仅用于说明产出形态；《明日方舟》及角色视觉素材的相关权利归原权利方所有。
 

@@ -64,6 +64,7 @@ Render the fragment together with its source label, precise locator, speaker whe
 ## 4. Graph rendering
 
 - Use WebGL for the graph when available; Canvas is acceptable for overlays, groups, minimap, and fallback.
+- Keep ordinary, unselected edges distinguishable from the canvas at overview scale and after a full-interface screenshot is reduced to documentation width. Edges may stay subordinate to nodes and labels, but they may not depend on hover or selection to become visible.
 - Keep labels legible through priority, collision, zoom thresholds, and viewport clipping rules.
 - Always keep selected and directly related labels visible.
 - Do not draw every label at overview scale.

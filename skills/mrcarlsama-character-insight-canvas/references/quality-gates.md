@@ -109,6 +109,7 @@ Test a desktop viewport, 390 by 844 compact viewport, and 200 percent browser zo
 - [ ] A guide step opens a third node layer.
 - [ ] Returning to an exposed rail removes later layers correctly.
 - [ ] View switcher, search, selected labels, zoom, and fit work.
+- [ ] Ordinary unselected graph edges remain visible at overview scale and when a full-interface screenshot is reduced to normal documentation width.
 - [ ] Evidence drawers for two different targets do not leak anchors targeted only at the other target.
 - [ ] Essential information does not depend on hover.
 - [ ] Keyboard focus and reduced-motion behavior work.
@@ -159,3 +160,11 @@ Before publishing the Skill itself, test its rules mentally or with fixtures aga
 4. a supplied-only character dossier with no public canon page.
 
 If the schema forces one medium's vocabulary onto all four, the Skill is not general.
+
+## 12. Skill repository publishing
+
+Apply these gates only when publishing or updating the Skill repository itself:
+
+- [ ] Example screenshots show the complete interface at a consistent viewport and were inspected at both original size and README display size.
+- [ ] Every README image is committed, uses a repository-relative path, and loads with non-zero natural dimensions on the rendered GitHub repository page.
+- [ ] Graph relationships remain readable after GitHub scales the screenshot; a line that exists only in the full-size PNG is not considered visible.
