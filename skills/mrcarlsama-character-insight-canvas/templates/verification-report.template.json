@@ -1,0 +1,21 @@
+{
+  "schemaVersion": "1.0",
+  "caseId": "{{CASE_ID}}",
+  "metadata": {
+    "status": "pending",
+    "verifierRunId": null,
+    "independentSubagent": false,
+    "isolatedContext": false,
+    "sourceReviewPerformed": false,
+    "publicWebSearchPerformed": false,
+    "verifiedAt": null
+  },
+  "claims": [],
+  "projectionReview": {
+    "status": "pending",
+    "verifierRunId": null,
+    "reviewedTargets": [],
+    "findings": [],
+    "reviewedAt": null
+  }
+}

@@ -1,0 +1,125 @@
+{
+  "schemaVersion": "1.0",
+  "metadata": {
+    "id": "{{CASE_ID}}",
+    "title": "《{{WORK}}》{{CHARACTER}} · 角色洞察画板",
+    "language": "zh-CN",
+    "description": "RESEARCH REQUIRED: replace with the exact report scope.",
+    "subject": "{{CHARACTER}}",
+    "evidenceMode": "anchored"
+  },
+  "characterBrief": {
+    "eyebrow": "CHARACTER IN 30 SECONDS",
+    "title": "{{CHARACTER}}",
+    "headline": "RESEARCH REQUIRED",
+    "introduction": "RESEARCH REQUIRED",
+    "spoilerNote": "RESEARCH REQUIRED: state the spoiler boundary.",
+    "sourceScopes": [
+      {
+        "id": "scope-main",
+        "title": "RESEARCH REQUIRED",
+        "medium": "RESEARCH REQUIRED",
+        "scope": "RESEARCH REQUIRED",
+        "note": "RESEARCH REQUIRED"
+      }
+    ],
+    "firstImpression": {
+      "surface": "RESEARCH REQUIRED",
+      "reframed": "RESEARCH REQUIRED",
+      "nodeId": "n-subject",
+      "evidenceIds": []
+    },
+    "sections": [
+      {
+        "id": "identity",
+        "title": "她/他是谁",
+        "items": [
+          {
+            "id": "identity-primary",
+            "label": "RESEARCH REQUIRED",
+            "statement": "RESEARCH REQUIRED",
+            "scopeIds": ["scope-main"],
+            "nodeId": "n-subject",
+            "evidenceIds": [],
+            "certainty": "unverified"
+          }
+        ]
+      }
+    ],
+    "visualIdentity": {
+      "summary": "RESEARCH REQUIRED",
+      "traits": [],
+      "palette": [],
+      "references": []
+    }
+  },
+  "guide": {
+    "eyebrow": "CORE PATH",
+    "title": "RESEARCH REQUIRED",
+    "summary": "RESEARCH REQUIRED",
+    "steps": [
+      {
+        "id": "guide-research-required",
+        "title": "RESEARCH REQUIRED",
+        "summary": "RESEARCH REQUIRED",
+        "viewId": "relationships",
+        "nodeId": "n-subject"
+      }
+    ]
+  },
+  "evidence": [
+    {
+      "id": "ev-research-required",
+      "label": "RESEARCH REQUIRED",
+      "url": "https://example.invalid/replace-me",
+      "sourceType": "unverified",
+      "anchors": [
+        {
+          "id": "anchor-research-required",
+          "targetIds": ["n-subject"],
+          "locator": "RESEARCH REQUIRED: exact route/scene, episode/timestamp, chapter/page/panel, or equivalent location.",
+          "excerpt": "RESEARCH REQUIRED: short original wording only.",
+          "speaker": "RESEARCH REQUIRED: name the speaker or remove this field when it does not apply.",
+          "context": "RESEARCH REQUIRED: preserve conditions, addressee, report status, and scene context when needed.",
+          "supports": "RESEARCH REQUIRED: state only what this fragment directly supports."
+        }
+      ]
+    }
+  ],
+  "nodes": [
+    {
+      "id": "n-subject",
+      "kind": "character",
+      "title": "{{CHARACTER}}",
+      "summary": "RESEARCH REQUIRED",
+      "tags": ["中心人物"],
+      "importance": 10,
+      "certainty": "unverified",
+      "evidenceIds": ["ev-research-required"],
+      "groupIds": []
+    }
+  ],
+  "edges": [],
+  "groups": [],
+  "views": [
+    {
+      "id": "relationships",
+      "title": "人物关系",
+      "description": "RESEARCH REQUIRED: state the question this view answers.",
+      "question": "RESEARCH REQUIRED",
+      "inScope": ["RESEARCH REQUIRED"],
+      "outOfScope": ["RESEARCH REQUIRED"],
+      "whyThisViewExists": "RESEARCH REQUIRED",
+      "visibleNodeIds": ["n-subject"],
+      "visibleEdgeIds": [],
+      "visibleGroupIds": [],
+      "placements": {
+        "nodes": {
+          "n-subject": { "x": 0, "y": 0, "size": 18 }
+        },
+        "groups": {}
+      },
+      "camera": { "x": 0.5, "y": 0.5, "ratio": 1 }
+    }
+  ]
+}

@@ -1,0 +1,67 @@
+{
+  "schemaVersion": "1.0",
+  "caseId": "{{CASE_ID}}",
+  "scope": {
+    "character": "{{CHARACTER}}",
+    "work": "{{WORK}}",
+    "researchMode": "RESEARCH REQUIRED: public | supplied | mixed",
+    "medium": "RESEARCH REQUIRED",
+    "versionOrAdaptation": "RESEARCH REQUIRED",
+    "sourceBoundary": "RESEARCH REQUIRED",
+    "spoilerCeiling": "RESEARCH REQUIRED",
+    "outputLanguage": "zh-CN"
+  },
+  "sourceScopes": [
+    {
+      "id": "scope-main",
+      "title": "RESEARCH REQUIRED",
+      "work": "{{WORK}}",
+      "medium": "RESEARCH REQUIRED",
+      "version": "RESEARCH REQUIRED",
+      "installmentRange": "RESEARCH REQUIRED",
+      "notes": "RESEARCH REQUIRED"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "ev-research-required",
+      "title": "RESEARCH REQUIRED",
+      "urlOrLocation": "RESEARCH REQUIRED",
+      "sourceTier": 0,
+      "sourceClass": "unverified",
+      "originGroup": "RESEARCH REQUIRED",
+      "sourceScopeIds": ["scope-main"],
+      "locator": "RESEARCH REQUIRED",
+      "accessedAt": null
+    }
+  ],
+  "viewCharters": [
+    {
+      "viewId": "relationships",
+      "question": "RESEARCH REQUIRED",
+      "inScope": ["RESEARCH REQUIRED"],
+      "outOfScope": ["RESEARCH REQUIRED"],
+      "whyThisViewExists": "RESEARCH REQUIRED"
+    }
+  ],
+  "visualReferences": [],
+  "claims": [
+    {
+      "id": "claim-research-required",
+      "category": "identity",
+      "statement": "RESEARCH REQUIRED",
+      "claimType": "unverified",
+      "evidenceClass": "unverified",
+      "qualifiers": [],
+      "attribution": null,
+      "condition": null,
+      "causalBasis": "none",
+      "sourceScopeIds": ["scope-main"],
+      "evidenceIds": ["ev-research-required"],
+      "sceneOrObservableBasis": "RESEARCH REQUIRED",
+      "displayTargets": ["characterBrief.headline"],
+      "conflicts": [],
+      "notes": null
+    }
+  ]
+}
