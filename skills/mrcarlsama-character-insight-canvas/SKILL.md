@@ -61,7 +61,7 @@ Read [content-contract.md](references/content-contract.md). When the output is S
 Produce:
 
 - a natural one-sentence character thesis;
-- `第一眼 -> 深入后`;
+- a concise visual impression supported by concrete details;
 - three to five behavior-based traits;
 - key relationships expressed through concrete tension and consequence;
 - a five-to-nine-step core path;
