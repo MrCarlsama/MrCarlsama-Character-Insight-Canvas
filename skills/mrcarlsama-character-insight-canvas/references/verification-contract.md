@@ -17,6 +17,23 @@ Do not give it the producer's prose, preferred interpretation, or arguments for 
 
 For public or mixed research, the verifier performs its own web search and opens the sources it relies on. For supplied research, it independently reads the supplied primary material. Merely rereading the producer's notes does not count.
 
+For a region-aware scope, the verifier checks the regional source policy independently:
+
+- the selected primary region matches the user's request or the default Mainland China rule;
+- primary chronology and spoiler scope contain only material published in that region;
+- each supplementary regional scope states a material difference from the primary release;
+- a mirror's hosting region is not confused with the content edition it reproduces;
+- foreign-release wording is not presented as Mainland China wording without an explicit comparison.
+
+For continuity relations, the verifier independently opens evidence for both sides and checks:
+
+- the base and variant scopes are distinct and correctly ordered or compared;
+- the displayed label matches the actual change type;
+- `retcon` is used only when later canon demonstrably supersedes the earlier claim;
+- an adaptation rewrite is not mistaken for a same-continuity retcon;
+- unresolved contradictions remain disputed and display both versions;
+- the final HTML exposes the marker instead of burying it in internal metadata.
+
 If the environment cannot run an independent sub-agent, the result is an internal draft. Do not label it verified, final, publication-ready, or independently checked.
 
 ## 2. Claim-level verdicts
@@ -62,10 +79,16 @@ Required metadata:
       "isolatedContext": true,
       "sourceReviewPerformed": true,
       "publicWebSearchPerformed": true,
+      "regionalScopeReviewPerformed": true,
+      "continuityReviewPerformed": true,
       "verifiedAt": "ISO-8601 timestamp"
     }
 
 publicWebSearchPerformed must be true for public and mixed research. For supplied-only research it may be false when the report names the independently reread supplied material.
+
+regionalScopeReviewPerformed must be true when `scope.regionalSourcePolicy.mode` is `cn-primary` or `user-specified`. It may be false for `not-applicable` and for legacy ledgers that predate the regional policy field.
+
+continuityReviewPerformed must be true for new ledgers that contain `continuityRelations`, including when the array is empty after review. Legacy ledgers without this field remain valid.
 
 Each claim result contains:
 
@@ -108,6 +131,8 @@ Review every claim-bearing display target for:
 - interpretation receiving a factual evidence label;
 - adaptation or version boundaries disappearing;
 - conflict being hidden;
+- a script change or unresolved contradiction disappearing;
+- a localization or adaptation difference being inflated into a retcon;
 - Chinese rewriting dropping conditions, attribution, or uncertainty;
 - a short label becoming stronger than its detailed explanation.
 

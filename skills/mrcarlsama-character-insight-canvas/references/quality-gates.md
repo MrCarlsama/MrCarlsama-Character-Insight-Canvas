@@ -5,6 +5,14 @@ Apply every applicable gate before claiming completion. A failed independent-ver
 ## 1. Scope and research
 
 - [ ] Exact character, work, medium, adaptation or version, and spoiler ceiling are visible.
+- [ ] If the user did not specify a region and a distinct Mainland China release exists, Mainland China is the primary source scope.
+- [ ] Every supplementary regional scope names its region, language, version, and material difference from the primary release.
+- [ ] Later foreign-release content did not silently extend the primary chronology or spoiler ceiling.
+- [ ] Website hosting region was not confused with the content edition reproduced by a mirror.
+- [ ] Regional, adaptation, edition, broadcast, rerun, patch, and later-canon changes were actively checked.
+- [ ] Every material change is classified as localization change, adaptation rewrite, script revision, retcon, or unresolved contradiction.
+- [ ] `retcon` is used only when later canon demonstrably supersedes an earlier continuity claim.
+- [ ] Unresolved contradictions preserve both versions and use disputed claims rather than forced reconciliation.
 - [ ] The atomic claim ledger exists beside the canvas inside a task-owned internal work directory.
 - [ ] Every display-bound claim has one claim type, one evidence class, source scopes, evidence, and observable basis.
 - [ ] Attribution, conditions, disputes, and causal basis are recorded separately.
@@ -27,6 +35,8 @@ Apply every applicable gate before claiming completion. A failed independent-ver
 - [ ] A separate sub-agent performed the verification.
 - [ ] The verifier started with isolated context or the closest available equivalent.
 - [ ] The verifier independently searched public sources or reread supplied primary material.
+- [ ] For region-aware work, the verifier independently checked the primary region and every claimed regional difference.
+- [ ] The verifier checked both sides of every continuity relation and confirmed its visible label.
 - [ ] Every displayed claim has a verdict.
 - [ ] No displayed claim remains insufficient, contradicted, or scope-conflict.
 - [ ] Every partially-confirmed claim includes the required correction and qualifiers.
@@ -56,6 +66,7 @@ For Simplified Chinese output:
 - [ ] The character brief is the default entry when available.
 - [ ] The first viewport contains name and scope, thesis, concrete introduction, first-impression reframing, and core-path action.
 - [ ] A new reader can understand who the character is without opening a map.
+- [ ] Material version changes appear visibly in the character brief and are not hidden in metadata or evidence drawers.
 - [ ] The full brief may scroll; it was not forced into one viewport by shrinking type.
 - [ ] The core path contains five to nine meaningful changes rather than a plot recap.
 - [ ] Every guide step opens a node inside its declared view.
@@ -102,6 +113,7 @@ For Simplified Chinese output:
 Test a desktop viewport, 390 by 844 compact viewport, and 200 percent browser zoom in a real browser.
 
 - [ ] Character brief reflows without horizontal clipping.
+- [ ] When continuity notes exist, their type, compared scopes, status, summary, and source action are visible on desktop and compact layouts.
 - [ ] Important body text computes to at least 14 CSS px.
 - [ ] Metadata, badges, and secondary labels compute to at least 12 CSS px.
 - [ ] Body line height computes to at least 1.45.
@@ -109,7 +121,6 @@ Test a desktop viewport, 390 by 844 compact viewport, and 200 percent browser zo
 - [ ] A guide step opens a third node layer.
 - [ ] Returning to an exposed rail removes later layers correctly.
 - [ ] View switcher, search, selected labels, zoom, and fit work.
-- [ ] Ordinary unselected graph edges remain visible at overview scale and when a full-interface screenshot is reduced to normal documentation width.
 - [ ] Evidence drawers for two different targets do not leak anchors targeted only at the other target.
 - [ ] Essential information does not depend on hover.
 - [ ] Keyboard focus and reduced-motion behavior work.
@@ -129,6 +140,7 @@ The independent verifier or a human reviewer must answer:
 - Does each anchor identify the exact fragment, speaker, necessary context, and only what that fragment supports?
 - Does any `supports` statement overclaim beyond a self-report, relayed account, conditional statement, or observable action?
 - Did clarity erase contradiction or version difference?
+- Was an ordinary translation, adaptation choice, or unexplained inconsistency mislabeled as “吃书”?
 - Did the report add redemption, inevitability, uniqueness, or total transformation without evidence?
 - Does each map answer a real question, or has it become a themed storage box?
 - Does the first drawer give a memorable person rather than a pile of lore?
@@ -160,11 +172,3 @@ Before publishing the Skill itself, test its rules mentally or with fixtures aga
 4. a supplied-only character dossier with no public canon page.
 
 If the schema forces one medium's vocabulary onto all four, the Skill is not general.
-
-## 12. Skill repository publishing
-
-Apply these gates only when publishing or updating the Skill repository itself:
-
-- [ ] Example screenshots show the complete interface at a consistent viewport and were inspected at both original size and README display size.
-- [ ] Every README image is committed, uses a repository-relative path, and loads with non-zero natural dimensions on the rendered GitHub repository page.
-- [ ] Graph relationships remain readable after GitHub scales the screenshot; a line that exists only in the full-size PNG is not considered visible.

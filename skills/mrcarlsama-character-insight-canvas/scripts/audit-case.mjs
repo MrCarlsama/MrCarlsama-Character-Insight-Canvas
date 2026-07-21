@@ -34,6 +34,24 @@ const VERDICTS = new Set([
 const BLOCKING_VERDICTS = new Set(["insufficient", "contradicted", "scope-conflict"]);
 const COMPLETE_VERIFICATION_STATUSES = new Set(["complete", "completed", "passed", "verified"]);
 const CLOSED_FINDING_STATUSES = new Set(["resolved", "closed"]);
+const REGIONAL_POLICY_MODES = new Set(["cn-primary", "user-specified", "not-applicable"]);
+const REGIONAL_SUPPLEMENTARY_USES = new Set(["differences-only", "user-directed", "not-applicable"]);
+const SOURCE_SCOPE_ROLES = new Set(["primary", "supplementary"]);
+const CONTINUITY_RELATION_TYPES = new Set([
+  "localization-change",
+  "adaptation-rewrite",
+  "script-revision",
+  "retcon",
+  "contradiction-unresolved",
+]);
+const CONTINUITY_STATUSES = new Set(["confirmed", "disputed"]);
+const ZH_CONTINUITY_LABELS = new Map([
+  ["localization-change", "本地化差异"],
+  ["adaptation-rewrite", "改编重写"],
+  ["script-revision", "脚本修订"],
+  ["retcon", "追溯改写（俗称吃书）"],
+  ["contradiction-unresolved", "矛盾未决"],
+]);
 const CLAIM_EVIDENCE_COMPATIBILITY = new Map([
   ["fact", new Set(["confirmed-text", "official-supplement"])],
   ["official-commentary", new Set(["official-supplement"])],
@@ -139,6 +157,15 @@ export function collectClaimTargets(canvas, errors = []) {
   addTarget(targets, "characterBrief.visualIdentity.summary", [brief.visualIdentity?.summary]);
   addTarget(targets, "characterBrief.visualIdentity.traits", brief.visualIdentity?.traits);
 
+  for (const [index, note] of list(brief.continuityNotes).entries()) {
+    const noteId = text(note?.id);
+    if (!noteId) {
+      errors.push(issue("MISSING_TARGET_ID", `characterBrief.continuityNotes[${index}].id is required for stable claim mapping.`, `canvas.characterBrief.continuityNotes[${index}].id`));
+      continue;
+    }
+    addTarget(targets, `characterBrief.continuityNotes.${noteId}`, [note?.label, note?.summary]);
+  }
+
   for (const [sectionIndex, section] of list(brief.sections).entries()) {
     const sectionId = text(section?.id);
     if (!sectionId) {
@@ -221,6 +248,10 @@ function validateDisplayEvidenceLabels(canvas, targets, claimsById, targetClaims
       if (targets.has(target)) units.push({ location: target, certainty: item?.certainty, targets: [target] });
     }
   }
+  for (const note of list(brief.continuityNotes)) {
+    const target = `characterBrief.continuityNotes.${String(note?.id)}`;
+    if (targets.has(target)) units.push({ location: target, certainty: note?.certainty, targets: [target] });
+  }
   for (const node of list(canvas?.nodes)) {
     const prefix = `nodes.${String(node?.id)}`;
     units.push({
@@ -265,11 +296,55 @@ function validateDisplayEvidenceLabels(canvas, targets, claimsById, targetClaims
   }
 }
 
+function validateRegionalSourcePolicy(scope, errors) {
+  if (!Object.hasOwn(scope, "regionalSourcePolicy")) return null;
+  const policy = scope.regionalSourcePolicy;
+  if (!record(policy)) {
+    errors.push(issue("INVALID_REGIONAL_SOURCE_POLICY", "ledger.scope.regionalSourcePolicy must be an object.", "ledger.scope.regionalSourcePolicy"));
+    return null;
+  }
+
+  for (const field of ["mode", "supplementaryUse"]) {
+    pushRequired(errors, policy, field, "ledger.scope.regionalSourcePolicy");
+  }
+  for (const field of ["primaryRegion", "primaryLanguage"]) {
+    if (!Object.hasOwn(policy, field)) {
+      errors.push(issue("REQUIRED_FIELD", `ledger.scope.regionalSourcePolicy.${field} must be present; use null only for not-applicable.`, `ledger.scope.regionalSourcePolicy.${field}`));
+    }
+  }
+
+  if (hasValue(policy.mode) && !REGIONAL_POLICY_MODES.has(policy.mode)) {
+    errors.push(issue("INVALID_REGIONAL_POLICY_MODE", `ledger.scope.regionalSourcePolicy.mode is invalid: ${String(policy.mode)}.`, "ledger.scope.regionalSourcePolicy.mode"));
+  }
+  if (hasValue(policy.supplementaryUse) && !REGIONAL_SUPPLEMENTARY_USES.has(policy.supplementaryUse)) {
+    errors.push(issue("INVALID_REGIONAL_SUPPLEMENTARY_USE", `ledger.scope.regionalSourcePolicy.supplementaryUse is invalid: ${String(policy.supplementaryUse)}.`, "ledger.scope.regionalSourcePolicy.supplementaryUse"));
+  }
+
+  if (policy.mode === "not-applicable") {
+    if (hasValue(policy.primaryRegion) || hasValue(policy.primaryLanguage) || policy.supplementaryUse !== "not-applicable") {
+      errors.push(issue("INVALID_NOT_APPLICABLE_REGIONAL_POLICY", "A not-applicable regional policy must use null primaryRegion, null primaryLanguage, and supplementaryUse not-applicable.", "ledger.scope.regionalSourcePolicy"));
+    }
+  } else if (["cn-primary", "user-specified"].includes(policy.mode)) {
+    pushRequired(errors, policy, "primaryRegion", "ledger.scope.regionalSourcePolicy");
+    pushRequired(errors, policy, "primaryLanguage", "ledger.scope.regionalSourcePolicy");
+    if (policy.supplementaryUse === "not-applicable") {
+      errors.push(issue("INVALID_REGIONAL_SUPPLEMENTARY_USE", "A region-aware policy cannot use supplementaryUse not-applicable.", "ledger.scope.regionalSourcePolicy.supplementaryUse"));
+    }
+  }
+
+  if (policy.mode === "cn-primary") {
+    if (policy.primaryRegion !== "mainland-china" || policy.primaryLanguage !== "zh-CN" || policy.supplementaryUse !== "differences-only") {
+      errors.push(issue("INVALID_CN_PRIMARY_POLICY", "cn-primary requires mainland-china, zh-CN, and differences-only.", "ledger.scope.regionalSourcePolicy"));
+    }
+  }
+  return policy;
+}
+
 function validateScope(ledger, canvas, errors) {
   const scope = ledger?.scope;
   if (!record(scope)) {
     errors.push(issue("MISSING_SCOPE", "ledger.scope is required.", "ledger.scope"));
-    return;
+    return null;
   }
   for (const field of ["character", "work", "researchMode", "medium", "versionOrAdaptation", "sourceBoundary", "spoilerCeiling", "outputLanguage"]) {
     pushRequired(errors, scope, field, "ledger.scope");
@@ -283,6 +358,7 @@ function validateScope(ledger, canvas, errors) {
   if (text(canvas?.metadata?.language) && text(scope.outputLanguage) && text(canvas.metadata.language) !== text(scope.outputLanguage)) {
     errors.push(issue("SCOPE_MISMATCH", "canvas.metadata.language does not match ledger.scope.outputLanguage.", "canvas.metadata.language"));
   }
+  return validateRegionalSourcePolicy(scope, errors);
 }
 
 function validateCaseIds(canvas, ledger, verification, errors) {
@@ -298,7 +374,7 @@ function validateCaseIds(canvas, ledger, verification, errors) {
   }
 }
 
-function validateSourceScopes(ledger, errors) {
+function validateSourceScopes(ledger, errors, regionalPolicy = null) {
   if (!Array.isArray(ledger?.sourceScopes) || ledger.sourceScopes.length === 0) {
     errors.push(issue("MISSING_SOURCE_SCOPES", "ledger.sourceScopes must contain at least one source boundary.", "ledger.sourceScopes"));
   }
@@ -308,6 +384,31 @@ function validateSourceScopes(ledger, errors) {
     for (const field of ["title", "work", "medium", "version", "installmentRange"]) {
       pushRequired(errors, scope, field, location);
     }
+    if (["cn-primary", "user-specified"].includes(regionalPolicy?.mode)) {
+      for (const field of ["region", "language", "sourceRole"]) {
+        pushRequired(errors, scope, field, location);
+      }
+      if (!Object.hasOwn(scope, "differenceFromPrimary")) {
+        errors.push(issue("REQUIRED_FIELD", `${location}.differenceFromPrimary must be present; use null for a primary scope.`, `${location}.differenceFromPrimary`));
+      }
+      if (hasValue(scope.sourceRole) && !SOURCE_SCOPE_ROLES.has(scope.sourceRole)) {
+        errors.push(issue("INVALID_SOURCE_SCOPE_ROLE", `${location}.sourceRole must be primary or supplementary.`, `${location}.sourceRole`));
+      }
+      if (scope.sourceRole === "primary") {
+        if (scope.region !== regionalPolicy.primaryRegion || scope.language !== regionalPolicy.primaryLanguage) {
+          errors.push(issue("PRIMARY_REGION_MISMATCH", `${location} does not match the regional policy's primary region and language.`, location));
+        }
+        if (hasValue(scope.differenceFromPrimary)) {
+          errors.push(issue("PRIMARY_SCOPE_HAS_DIFFERENCE", `${location}.differenceFromPrimary must be null or empty for a primary scope.`, `${location}.differenceFromPrimary`));
+        }
+      }
+      if (scope.sourceRole === "supplementary" && !hasValue(scope.differenceFromPrimary)) {
+        errors.push(issue("UNJUSTIFIED_SUPPLEMENTARY_SCOPE", `${location} must name the material difference that justifies this supplementary region.`, `${location}.differenceFromPrimary`));
+      }
+    }
+  }
+  if (["cn-primary", "user-specified"].includes(regionalPolicy?.mode) && ![...scopeById.values()].some((scope) => scope.sourceRole === "primary")) {
+    errors.push(issue("MISSING_PRIMARY_REGIONAL_SCOPE", "A region-aware case must contain at least one primary source scope.", "ledger.sourceScopes"));
   }
   return scopeById;
 }
@@ -347,6 +448,53 @@ function validateEvidence(ledger, scopeById, errors) {
     }
   }
   return evidenceById;
+}
+
+function validateContinuityRelations(ledger, scopeById, evidenceById, errors) {
+  if (!Object.hasOwn(ledger, "continuityRelations")) return new Map();
+  if (!Array.isArray(ledger.continuityRelations)) {
+    errors.push(issue("INVALID_CONTINUITY_RELATIONS", "ledger.continuityRelations must be an array; use [] after checking and finding no material changes.", "ledger.continuityRelations"));
+    return new Map();
+  }
+
+  const relationById = idMap(ledger.continuityRelations, "ledger.continuityRelations", errors);
+  for (const [relationId, relation] of relationById) {
+    const location = `ledger.continuityRelations.${relationId}`;
+    for (const field of ["relationType", "status", "summary"]) pushRequired(errors, relation, field, location);
+    if (hasValue(relation.relationType) && !CONTINUITY_RELATION_TYPES.has(relation.relationType)) {
+      errors.push(issue("INVALID_CONTINUITY_RELATION_TYPE", `${location}.relationType is invalid: ${String(relation.relationType)}.`, `${location}.relationType`));
+    }
+    if (hasValue(relation.status) && !CONTINUITY_STATUSES.has(relation.status)) {
+      errors.push(issue("INVALID_CONTINUITY_STATUS", `${location}.status must be confirmed or disputed.`, `${location}.status`));
+    }
+    for (const field of ["baseScopeIds", "variantScopeIds", "evidenceIds"]) {
+      if (!Array.isArray(relation[field]) || relation[field].length === 0) {
+        errors.push(issue("MISSING_CONTINUITY_REFERENCE", `${location}.${field} must be a non-empty array.`, `${location}.${field}`));
+      }
+    }
+    checkReferences(relation.baseScopeIds, scopeById, "UNKNOWN_SCOPE", `Continuity relation ${relationId}`, `${location}.baseScopeIds`, errors);
+    checkReferences(relation.variantScopeIds, scopeById, "UNKNOWN_SCOPE", `Continuity relation ${relationId}`, `${location}.variantScopeIds`, errors);
+    checkReferences(relation.evidenceIds, evidenceById, "UNKNOWN_EVIDENCE", `Continuity relation ${relationId}`, `${location}.evidenceIds`, errors);
+    const baseIds = new Set(list(relation.baseScopeIds));
+    if (list(relation.variantScopeIds).some((scopeId) => baseIds.has(scopeId))) {
+      errors.push(issue("SELF_COMPARING_CONTINUITY_RELATION", `${location} must compare distinct base and variant scopes.`, location));
+    }
+    const evidenceScopeIds = new Set(
+      list(relation.evidenceIds).flatMap((evidenceId) => list(evidenceById.get(evidenceId)?.sourceScopeIds)),
+    );
+    for (const scopeId of [...list(relation.baseScopeIds), ...list(relation.variantScopeIds)]) {
+      if (scopeById.has(scopeId) && !evidenceScopeIds.has(scopeId)) {
+        errors.push(issue("MISSING_CONTINUITY_SIDE_EVIDENCE", `${location} has no referenced evidence assigned to compared scope ${scopeId}.`, `${location}.evidenceIds`));
+      }
+    }
+    if (relation.relationType === "retcon" && relation.status !== "confirmed") {
+      errors.push(issue("UNCONFIRMED_RETCON", `${location} cannot use retcon unless supersession is confirmed; use contradiction-unresolved when precedence is unclear.`, `${location}.relationType`));
+    }
+    if (relation.relationType === "contradiction-unresolved" && relation.status !== "disputed") {
+      errors.push(issue("FALSELY_RESOLVED_CONTRADICTION", `${location} must remain disputed while continuity precedence is unresolved.`, `${location}.status`));
+    }
+  }
+  return relationById;
 }
 
 function validateVisualReferences(ledger, scopeById, errors) {
@@ -494,7 +642,7 @@ function validateCanvasEvidenceAnchors(canvas, nodeById, edgeById, errors) {
   }
 }
 
-function validateCanvasReferences(canvas, scopeById, canvasEvidenceById, visualById, errors) {
+function validateCanvasReferences(canvas, scopeById, canvasEvidenceById, visualById, continuityById, errors) {
   const brief = canvas?.characterBrief;
   if (!record(brief)) {
     errors.push(issue("MISSING_CHARACTER_BRIEF", "canvas.characterBrief is required for a character-first case.", "canvas.characterBrief"));
@@ -512,6 +660,37 @@ function validateCanvasReferences(canvas, scopeById, canvasEvidenceById, visualB
       }
       if (!scopeById.has(scopeId)) {
         errors.push(issue("UNKNOWN_SCOPE", `Character brief exposes unknown source scope ${scopeId}.`, `canvas.characterBrief.sourceScopes.${scopeId}`));
+      }
+    }
+    const continuityNotes = Array.isArray(brief.continuityNotes) ? brief.continuityNotes : [];
+    const continuityNoteById = idMap(continuityNotes, "canvas.characterBrief.continuityNotes", errors);
+    for (const [noteId, note] of continuityNoteById) {
+      const location = `canvas.characterBrief.continuityNotes.${noteId}`;
+      for (const field of ["label", "relationType", "status", "summary", "certainty"]) pushRequired(errors, note, field, location);
+      const relation = continuityById.get(noteId);
+      if (!relation) {
+        errors.push(issue("UNKNOWN_CONTINUITY_RELATION", `${location} has no matching ledger continuity relation.`, location));
+        continue;
+      }
+      if (note.relationType !== relation.relationType || note.status !== relation.status) {
+        errors.push(issue("CONTINUITY_LABEL_MISMATCH", `${location} does not preserve the ledger relation type and status.`, location));
+      }
+      if (canvas?.metadata?.language === "zh-CN" && note.label !== ZH_CONTINUITY_LABELS.get(relation.relationType)) {
+        errors.push(issue("CONTINUITY_LABEL_MISMATCH", `${location}.label must use the required reader-facing Chinese label for ${String(relation.relationType)}.`, `${location}.label`));
+      }
+      const requiredScopeIds = new Set([...list(relation.baseScopeIds), ...list(relation.variantScopeIds)]);
+      checkReferences(note.scopeIds, scopeById, "UNKNOWN_SCOPE", `Continuity note ${noteId}`, `${location}.scopeIds`, errors);
+      if ([...requiredScopeIds].some((scopeId) => !list(note.scopeIds).includes(scopeId))) {
+        errors.push(issue("INCOMPLETE_CONTINUITY_SCOPES", `${location} does not expose every compared scope.`, `${location}.scopeIds`));
+      }
+      checkReferences(note.evidenceIds, canvasEvidenceById, "UNKNOWN_CANVAS_EVIDENCE", `Continuity note ${noteId}`, `${location}.evidenceIds`, errors);
+      if (list(relation.evidenceIds).some((evidenceId) => !list(note.evidenceIds).includes(evidenceId))) {
+        errors.push(issue("INCOMPLETE_CONTINUITY_EVIDENCE", `${location} does not expose every evidence record used by the continuity relation.`, `${location}.evidenceIds`));
+      }
+    }
+    for (const relationId of continuityById.keys()) {
+      if (!continuityNoteById.has(relationId)) {
+        errors.push(issue("MISSING_CONTINUITY_NOTE", `Ledger continuity relation ${relationId} is not visible in the character brief.`, `canvas.characterBrief.continuityNotes.${relationId}`));
       }
     }
     if (!record(brief.firstImpression)) {
@@ -807,6 +986,12 @@ function validateVerification(ledger, verification, claimsById, evidenceById, ta
     if (["public", "mixed"].includes(ledger?.scope?.researchMode) && metadata.publicWebSearchPerformed !== true) {
       errors.push(issue("NO_INDEPENDENT_WEB_SEARCH", `Research mode ${ledger.scope.researchMode} requires the verifier to perform its own public web search.`, "verification.metadata.publicWebSearchPerformed"));
     }
+    if (["cn-primary", "user-specified"].includes(ledger?.scope?.regionalSourcePolicy?.mode) && metadata.regionalScopeReviewPerformed !== true) {
+      errors.push(issue("NO_REGIONAL_SCOPE_REVIEW", "Region-aware research requires the verifier to check the primary region and supplementary differences.", "verification.metadata.regionalScopeReviewPerformed"));
+    }
+    if (Object.hasOwn(ledger, "continuityRelations") && metadata.continuityReviewPerformed !== true) {
+      errors.push(issue("NO_CONTINUITY_REVIEW", "New ledgers require an explicit review for script changes, retcons, and unresolved contradictions, even when none are found.", "verification.metadata.continuityReviewPerformed"));
+    }
   }
 
   if (!Array.isArray(verification?.claims)) {
@@ -1003,12 +1188,13 @@ export function auditCaseDocuments({ canvas, ledger, verification }) {
   }
 
   validateCaseIds(canvas, ledger, verification, errors);
-  validateScope(ledger, canvas, errors);
-  const scopeById = validateSourceScopes(ledger, errors);
+  const regionalPolicy = validateScope(ledger, canvas, errors);
+  const scopeById = validateSourceScopes(ledger, errors, regionalPolicy);
   const evidenceById = validateEvidence(ledger, scopeById, errors);
+  const continuityById = validateContinuityRelations(ledger, scopeById, evidenceById, errors);
   const visualById = validateVisualReferences(ledger, scopeById, errors);
   const canvasEvidenceById = validateCanvasEvidenceProjection(canvas, evidenceById, errors);
-  const views = validateCanvasReferences(canvas, scopeById, canvasEvidenceById, visualById, errors);
+  const views = validateCanvasReferences(canvas, scopeById, canvasEvidenceById, visualById, continuityById, errors);
   const targets = collectClaimTargets(canvas, errors);
   if (targets.size === 0) errors.push(issue("NO_DISPLAY_TARGETS", "Canvas has no claim-bearing display targets."));
   const { claimsById, targetClaims } = validateClaims(ledger, evidenceById, canvasEvidenceById, scopeById, targets, errors, warnings);

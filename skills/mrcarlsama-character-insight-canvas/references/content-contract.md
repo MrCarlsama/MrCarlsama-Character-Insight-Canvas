@@ -22,6 +22,8 @@ The rest of the drawer may continue below the fold:
 - visual identity and canonical references;
 - evidence scope and spoiler note.
 
+If `continuityRelations` is non-empty, the brief must include a visible “版本改动” section before deep evidence. Each item names both scopes and uses a plain reader-facing label: `本地化差异`, `改编重写`, `脚本修订`, `追溯改写（俗称吃书）`, or `矛盾未决`. Do not hide these only in metadata, source notes, or an evidence drawer.
+
 Never compress the entire brief into one screen by shrinking important text. The first viewport must orient; the scrollable drawer may complete the explanation.
 
 ## Character thesis and introduction
@@ -76,6 +78,7 @@ Relationships are commonly useful, but not mechanically mandatory. Candidate que
 - Which rule, ability, or world mechanism shapes their decisions?
 - Which recurring object, gesture, or phrase changes meaning?
 - How do adaptations disagree?
+- Which script revision, retcon, or unresolved contradiction changes how this character can be read?
 - Where does public performance diverge from private behavior?
 
 Every view needs a ledger view charter with question, inScope, outOfScope, and whyThisViewExists. If two views answer the same question, merge them. If a node does not help answer the declared question, remove it from that view.

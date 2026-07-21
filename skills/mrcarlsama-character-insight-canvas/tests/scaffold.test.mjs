@@ -34,6 +34,13 @@ test("scaffold preserves Unicode ids, creates three internal work files, and ref
     assert.equal(canvas.metadata.id, "アークナイツ-ホルハイヤ");
     assert.equal(ledger.caseId, canvas.metadata.id);
     assert.equal(verification.caseId, canvas.metadata.id);
+    assert.match(ledger.scope.regionalSourcePolicy.mode, /cn-primary/);
+    assert.equal(ledger.sourceScopes[0].sourceRole, "RESEARCH REQUIRED: primary | supplementary");
+    assert.equal(ledger.sourceScopes[0].differenceFromPrimary, null);
+    assert.deepEqual(ledger.continuityRelations, []);
+    assert.deepEqual(canvas.characterBrief.continuityNotes, []);
+    assert.equal(verification.metadata.regionalScopeReviewPerformed, false);
+    assert.equal(verification.metadata.continuityReviewPerformed, false);
 
     const refused = run(args);
     assert.notEqual(refused.status, 0);

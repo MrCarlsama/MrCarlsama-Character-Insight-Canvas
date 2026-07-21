@@ -8,6 +8,8 @@
     "isolatedContext": false,
     "sourceReviewPerformed": false,
     "publicWebSearchPerformed": false,
+    "regionalScopeReviewPerformed": false,
+    "continuityReviewPerformed": false,
     "verifiedAt": null
   },
   "claims": [],

@@ -23,6 +23,9 @@ Create a scope card containing:
 
 - exact character and source work;
 - medium, adaptation, edition, route, season, chapter, or cut boundary;
+- requested regional edition or source preference;
+- regional source policy: primary region and language, whether it was user-specified, and how other regional editions may be used;
+- known continuity, script, localization, adaptation, patch, or retcon boundaries;
 - spoiler ceiling;
 - output language;
 - research mode: `public`, `supplied`, or `mixed`;
@@ -31,6 +34,10 @@ Create a scope card containing:
 - one final HTML path outside that work directory.
 
 Proceed without asking when these are inferable. Ask one blocking question only when identity, adaptation, or spoiler scope would materially change the result.
+
+When the user does not specify a source region and the work has a distinct Mainland China release, use the Mainland China release as the primary source scope and research its currently published material first. Treat Global, Japanese, Korean, Traditional Chinese, and other regional releases as supplementary scopes only when they contain a material difference in release progress, localization, censorship, scene content, profile text, terminology, voice direction, or visual presentation. Name the region, language, version, and exact difference; never use a later foreign release to silently extend the Mainland China chronology or spoiler boundary. A foreign-hosted page that mirrors Mainland China text is still evidence about the Mainland China content scope, not a foreign-release scope, and its reconstruction tier must remain visible. If no distinct Mainland China release exists, use the work's original or officially designated release as primary.
+
+Actively check whether the scoped material was rewritten across regions, adaptations, editions, broadcasts, reruns, patches, or later canon. Record and visibly label material changes as `localization-change`, `adaptation-rewrite`, `script-revision`, `retcon`, or `contradiction-unresolved`. Do not call every mismatch a retcon: use `retcon` only when reliable evidence shows that later canon replaces or invalidates an earlier continuity claim. When intent or precedence is unclear, preserve both versions and label the conflict `contradiction-unresolved`.
 
 Completion criterion: one exact subject and one explicit source boundary are fixed; similarly named characters, adaptations, localizations, and timelines cannot be mixed accidentally.
 
@@ -50,6 +57,10 @@ Read [verification-contract.md](references/verification-contract.md). Spawn a se
 
 Give the verifier only the scope card, claim ledger, supplied materials, and source locations. Do not give it the producer's conclusions or ask it to confirm a preferred reading. The verifier must independently search public sources or independently reread supplied primary material, then write the structured verification report without editing the ledger or canvas.
 
+For region-aware cases, the verifier must also confirm that primary claims stay inside the chosen regional scope and that every supplementary regional scope identifies a real, relevant difference instead of merely importing newer or easier-to-find foreign material.
+
+The verifier must independently check every recorded continuity relation, including whether a claimed retcon is actually an established replacement rather than a translation choice, adaptation change, production revision, or unresolved contradiction.
+
 The producer must resolve `partially-confirmed`, `insufficient`, `contradicted`, and `scope-conflict` results explicitly. Do not silently overrule the verifier. If an independent sub-agent is unavailable, the run may produce an internal draft but must stop before claiming a verified or final artifact.
 
 Completion criterion: every display-bound claim has a verifier verdict; no unresolved blocking verdict remains; conditional and attributed claims retain the verifier's required qualifiers.
@@ -61,7 +72,7 @@ Read [content-contract.md](references/content-contract.md). When the output is S
 Produce:
 
 - a natural one-sentence character thesis;
-- a concise visual impression supported by concrete details;
+- `第一眼 -> 深入后`;
 - three to five behavior-based traits;
 - key relationships expressed through concrete tension and consequence;
 - a five-to-nine-step core path;
@@ -130,6 +141,8 @@ Completion criterion: case audit, renderer validation, type checks, and tests pa
 Lead with and link only the HTML artifact, then report in prose:
 
 - exact subject and source boundary;
+- primary regional edition and any explicitly separated foreign-edition differences;
+- every material script, adaptation, revision, retcon, or unresolved-continuity marker;
 - what the first drawer teaches;
 - why each evidence view exists;
 - verifier verdict summary and remaining non-blocking uncertainty;

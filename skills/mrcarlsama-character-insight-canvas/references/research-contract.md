@@ -9,11 +9,64 @@ Record one explicit scope before research:
 - character and work;
 - medium and adaptation;
 - edition, route, season, chapter, cut, or event boundary;
+- requested regional edition or source preference;
+- regional source policy when the work has region-separated releases;
 - spoiler ceiling;
 - output language;
 - research mode: public, supplied, or mixed.
 
 Treat different adaptations, localizations, timelines, costumes, and retellings as separate source scopes. A claim spanning scopes must name every scope it uses.
+
+### Default regional source policy
+
+When the user does not name a source region and a distinct Mainland China release exists:
+
+1. Set the Mainland China release as the primary scope and use its currently published material up to the spoiler ceiling.
+2. Search Mainland China in-work text and official Mainland China material before other regional editions.
+3. Add Global, Japanese, Korean, Traditional Chinese, or other regional scopes only to document a material difference in progress, localization, censorship, scene content, profile text, terminology, voice direction, or visual presentation.
+4. Label every supplementary scope with region, language, version, and `differenceFromPrimary`. Do not import later foreign content into the primary chronology.
+5. If no distinct Mainland China release exists, use the original or officially designated release as primary.
+
+Record the decision in `scope.regionalSourcePolicy`:
+
+    {
+      "mode": "cn-primary",
+      "primaryRegion": "mainland-china",
+      "primaryLanguage": "zh-CN",
+      "supplementaryUse": "differences-only"
+    }
+
+Allowed `mode` values are `cn-primary`, `user-specified`, and `not-applicable`. A user-specified policy follows the user's chosen region. Use `not-applicable` only when the work has no meaningful regional release distinction; keep `primaryRegion` and `primaryLanguage` as null and set `supplementaryUse` to `not-applicable`.
+
+For region-aware cases, each `sourceScopes` record also carries `region`, `language`, `sourceRole`, and `differenceFromPrimary`. `sourceRole` is `primary` or `supplementary`. A primary scope uses null for `differenceFromPrimary`; a supplementary scope names the exact difference that justifies its inclusion.
+
+Region describes the content edition, not the website's hosting location. A foreign-hosted mirror of Mainland China text belongs to the Mainland China source scope, but remains a reconstruction or secondary source according to the source ladder.
+
+### Continuity and revision policy
+
+Before drafting, check whether the scoped story or character text changed across regional releases, adaptations, editions, broadcast cuts, reruns, patches, restored scenes, or later canon. Store each material relation in top-level `continuityRelations`:
+
+    {
+      "id": "continuity-script-update",
+      "relationType": "script-revision",
+      "status": "confirmed",
+      "baseScopeIds": ["scope-before-patch"],
+      "variantScopeIds": ["scope-current"],
+      "summary": "The later patch replaces the earlier line and changes what the scene establishes.",
+      "evidenceIds": ["ev-before", "ev-current"]
+    }
+
+Allowed relation types:
+
+- `localization-change`: regional wording, censorship, terminology, or localization changes meaning or emphasis;
+- `adaptation-rewrite`: another medium or adaptation deliberately changes events, dialogue, order, or outcome;
+- `script-revision`: the same production or live work replaces, patches, rebroadcasts, or republishes material;
+- `retcon`: later canon demonstrably replaces or invalidates an earlier continuity claim;
+- `contradiction-unresolved`: sources conflict, but replacement, precedence, or intent is not established.
+
+`status` is `confirmed` or `disputed`. `retcon` requires confirmed evidence that the later material supersedes the earlier claim. If that cannot be shown, use `contradiction-unresolved` with `disputed`. An adaptation difference is not automatically a retcon because parallel continuities may both remain valid.
+
+Use an empty `continuityRelations` array only after checking for material changes. Every non-empty relation requires distinct base and variant scopes, direct evidence for both sides when available, and a concise reader-facing summary. Claims affected by an unresolved contradiction retain the `disputed` qualifier and conflict records; do not average competing versions into one sentence.
 
 ## 2. Source ladder and source independence
 
@@ -24,6 +77,8 @@ Prefer the highest available source for each claim:
 3. Reliable reconstruction: licensed databases, detailed scene records, and reputable reference works.
 4. Secondary interpretation: criticism, fan wikis, essays, and discussion archives.
 5. Reinterpretation imagery: fan art, cosplay, edits, and mood boards.
+
+Apply this ladder inside the chosen primary regional scope first. A higher-tier foreign-release source does not override the regional boundary; it may support only its labeled supplementary difference unless the user selected that region.
 
 Source tier is not truth probability. A character's line in the work proves that the character said it; it does not automatically prove the line's content is objectively true.
 
@@ -97,6 +152,7 @@ The ledger uses this top-level structure:
       "caseId": "work-character",
       "scope": {},
       "sourceScopes": [],
+      "continuityRelations": [],
       "evidence": [],
       "viewCharters": [],
       "visualReferences": [],
@@ -139,6 +195,7 @@ Use stable display target paths:
 - characterBrief.sections.SECTION_ID.ITEM_ID
 - characterBrief.visualIdentity.summary
 - characterBrief.visualIdentity.traits
+- characterBrief.continuityNotes.RELATION_ID
 - guide.title
 - guide.summary
 - guide.steps.STEP_ID

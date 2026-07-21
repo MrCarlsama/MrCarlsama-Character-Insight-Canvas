@@ -336,6 +336,56 @@ function anchoredFixture() {
   return fixture;
 }
 
+function continuityFixture() {
+  const fixture = validFixture();
+  fixture.ledger.sourceScopes.push({
+    id: "scope-revised",
+    title: "修订后正文第一卷",
+    work: "作品",
+    medium: "小说",
+    version: "纸书修订版",
+    installmentRange: "第一卷",
+  });
+  fixture.canvas.characterBrief.sourceScopes.push({
+    id: "scope-revised",
+    title: "修订后正文第一卷",
+    medium: "小说",
+    scope: "纸书修订版第一卷",
+  });
+  fixture.ledger.evidence.find((item) => item.id === "ev-secondary-a").sourceScopeIds = ["scope-revised"];
+  fixture.ledger.continuityRelations = [
+    {
+      id: "continuity-script-update",
+      relationType: "script-revision",
+      status: "confirmed",
+      baseScopeIds: ["scope-main"],
+      variantScopeIds: ["scope-revised"],
+      summary: "修订版替换了旧版台词，角色是否知情的文本结论随之改变。",
+      evidenceIds: ["ev-primary", "ev-secondary-a"],
+    },
+  ];
+  fixture.canvas.characterBrief.continuityNotes = [
+    {
+      id: "continuity-script-update",
+      label: "脚本修订",
+      relationType: "script-revision",
+      status: "confirmed",
+      summary: "修订版替换了旧版台词，角色是否知情的文本结论随之改变。",
+      scopeIds: ["scope-main", "scope-revised"],
+      evidenceIds: ["ev-primary", "ev-secondary-a"],
+      certainty: "confirmed-text",
+    },
+  ];
+  fixture.verification.metadata.continuityReviewPerformed = true;
+  addVerifiedClaim(
+    fixture,
+    "c-continuity-script-update",
+    "characterBrief.continuityNotes.continuity-script-update",
+  );
+  fixture.verification.projectionReview.reviewedTargets = [...collectClaimTargets(fixture.canvas).keys()];
+  return fixture;
+}
+
 function codes(issues) {
   return new Set(issues.map((item) => item.code));
 }
@@ -346,6 +396,97 @@ test("legacy documents without anchors still pass deterministic gates", () => {
   assert.deepEqual(result.warnings, []);
   assert.equal(result.stats.claims, 19);
   assert.equal(result.stats.targets, 19);
+});
+
+test("region-aware cases accept a Mainland China primary scope without breaking legacy ledgers", () => {
+  const fixture = validFixture();
+  fixture.ledger.scope.regionalSourcePolicy = {
+    mode: "cn-primary",
+    primaryRegion: "mainland-china",
+    primaryLanguage: "zh-CN",
+    supplementaryUse: "differences-only",
+  };
+  Object.assign(fixture.ledger.sourceScopes[0], {
+    region: "mainland-china",
+    language: "zh-CN",
+    sourceRole: "primary",
+    differenceFromPrimary: null,
+  });
+  fixture.verification.metadata.regionalScopeReviewPerformed = true;
+
+  const result = auditCaseDocuments(fixture);
+  assert.deepEqual(result.errors, []);
+});
+
+test("region-aware cases reject mismatched primary scopes and unjustified foreign supplements", () => {
+  const fixture = validFixture();
+  fixture.ledger.scope.regionalSourcePolicy = {
+    mode: "cn-primary",
+    primaryRegion: "mainland-china",
+    primaryLanguage: "zh-CN",
+    supplementaryUse: "differences-only",
+  };
+  Object.assign(fixture.ledger.sourceScopes[0], {
+    region: "global",
+    language: "en-US",
+    sourceRole: "primary",
+    differenceFromPrimary: null,
+  });
+  fixture.ledger.sourceScopes.push({
+    id: "scope-global",
+    title: "Global release",
+    work: "作品",
+    medium: "小说",
+    version: "Global edition",
+    installmentRange: "Volume 1",
+    region: "global",
+    language: "en-US",
+    sourceRole: "supplementary",
+    differenceFromPrimary: null,
+  });
+  fixture.verification.metadata.regionalScopeReviewPerformed = false;
+
+  const result = auditCaseDocuments(fixture);
+  const errorCodes = codes(result.errors);
+  assert(errorCodes.has("PRIMARY_REGION_MISMATCH"));
+  assert(errorCodes.has("UNJUSTIFIED_SUPPLEMENTARY_SCOPE"));
+  assert(errorCodes.has("NO_REGIONAL_SCOPE_REVIEW"));
+});
+
+test("material script revisions are evidence-bound and visibly marked in the character brief", () => {
+  const result = auditCaseDocuments(continuityFixture());
+  assert.deepEqual(result.errors, []);
+  assert.equal(result.stats.targets, 20);
+});
+
+test("unverified retcon labels, hidden continuity changes, and skipped review fail", () => {
+  const fixture = continuityFixture();
+  fixture.ledger.continuityRelations[0].relationType = "retcon";
+  fixture.ledger.continuityRelations[0].status = "disputed";
+  fixture.canvas.characterBrief.continuityNotes = [];
+  fixture.verification.metadata.continuityReviewPerformed = false;
+
+  const result = auditCaseDocuments(fixture);
+  const errorCodes = codes(result.errors);
+  assert(errorCodes.has("UNCONFIRMED_RETCON"));
+  assert(errorCodes.has("MISSING_CONTINUITY_NOTE"));
+  assert(errorCodes.has("NO_CONTINUITY_REVIEW"));
+});
+
+test("unresolved contradictions cannot masquerade as resolved retcons or vague Chinese labels", () => {
+  const fixture = continuityFixture();
+  fixture.ledger.continuityRelations[0].relationType = "contradiction-unresolved";
+  fixture.ledger.continuityRelations[0].status = "confirmed";
+  Object.assign(fixture.canvas.characterBrief.continuityNotes[0], {
+    label: "疑似吃书",
+    relationType: "contradiction-unresolved",
+    status: "confirmed",
+  });
+
+  const result = auditCaseDocuments(fixture);
+  const errorCodes = codes(result.errors);
+  assert(errorCodes.has("FALSELY_RESOLVED_CONTRADICTION"));
+  assert(errorCodes.has("CONTINUITY_LABEL_MISMATCH"));
 });
 
 test("global evidence anchors become claim targets and valid node/edge pairs pass in anchored mode", () => {

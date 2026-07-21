@@ -9,7 +9,7 @@
     "evidenceMode": "anchored"
   },
   "characterBrief": {
-    "eyebrow": "人物概览",
+    "eyebrow": "CHARACTER IN 30 SECONDS",
     "title": "{{CHARACTER}}",
     "headline": "RESEARCH REQUIRED",
     "introduction": "RESEARCH REQUIRED",
@@ -23,6 +23,7 @@
         "note": "RESEARCH REQUIRED"
       }
     ],
+    "continuityNotes": [],
     "firstImpression": {
       "surface": "RESEARCH REQUIRED",
       "reframed": "RESEARCH REQUIRED",

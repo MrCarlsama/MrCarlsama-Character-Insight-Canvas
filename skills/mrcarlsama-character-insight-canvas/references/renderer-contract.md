@@ -34,12 +34,15 @@ No renderer branch may contain a character name, work title, route, episode name
 - evidence records with safe HTTP or HTTPS links and optional global anchors;
 - nodes, edges, groups, views, placements, and camera state;
 - optional character brief;
+- optional reader-facing continuity notes for localization changes, adaptation rewrites, script revisions, retcons, and unresolved contradictions;
 - optional core guide;
 - generic source scopes and reader-facing evidence labels;
 - optional local visual assets embedded during build;
 - deterministic IDs that can be matched to claim displayTargets.
 
 When provenance extensions are present, preserve sourceTier, sourceClass, originGroup, scopeIds, visual version, credit, source page, and transformation.
+
+When `characterBrief.continuityNotes` is non-empty, render it as a visible “版本改动” block in the character brief. Show the relation label, status, compared scopes, summary, evidence label, and source navigation. Use distinct text labels rather than color alone. The Chinese label for `retcon` is `追溯改写（俗称吃书）`; `contradiction-unresolved` is `矛盾未决`. These markers are essential content and must not exist only on hover or inside hidden metadata.
 
 ### Anchored evidence projection
 
@@ -64,7 +67,6 @@ Render the fragment together with its source label, precise locator, speaker whe
 ## 4. Graph rendering
 
 - Use WebGL for the graph when available; Canvas is acceptable for overlays, groups, minimap, and fallback.
-- Keep ordinary, unselected edges distinguishable from the canvas at overview scale and after a full-interface screenshot is reduced to documentation width. Edges may stay subordinate to nodes and labels, but they may not depend on hover or selection to become visible.
 - Keep labels legible through priority, collision, zoom thresholds, and viewport clipping rules.
 - Always keep selected and directly related labels visible.
 - Do not draw every label at overview scale.

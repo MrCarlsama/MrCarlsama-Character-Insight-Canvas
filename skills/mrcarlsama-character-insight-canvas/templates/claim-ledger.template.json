@@ -8,6 +8,12 @@
     "medium": "RESEARCH REQUIRED",
     "versionOrAdaptation": "RESEARCH REQUIRED",
     "sourceBoundary": "RESEARCH REQUIRED",
+    "regionalSourcePolicy": {
+      "mode": "RESEARCH REQUIRED: cn-primary | user-specified | not-applicable",
+      "primaryRegion": "RESEARCH REQUIRED: mainland-china | exact user-selected region | null",
+      "primaryLanguage": "RESEARCH REQUIRED: zh-CN | exact user-selected language | null",
+      "supplementaryUse": "RESEARCH REQUIRED: differences-only | user-directed | not-applicable"
+    },
     "spoilerCeiling": "RESEARCH REQUIRED",
     "outputLanguage": "zh-CN"
   },
@@ -19,9 +25,14 @@
       "medium": "RESEARCH REQUIRED",
       "version": "RESEARCH REQUIRED",
       "installmentRange": "RESEARCH REQUIRED",
+      "region": "RESEARCH REQUIRED",
+      "language": "RESEARCH REQUIRED",
+      "sourceRole": "RESEARCH REQUIRED: primary | supplementary",
+      "differenceFromPrimary": null,
       "notes": "RESEARCH REQUIRED"
     }
   ],
+  "continuityRelations": [],
   "evidence": [
     {
       "id": "ev-research-required",
